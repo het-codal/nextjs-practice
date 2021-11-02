@@ -1,4 +1,10 @@
+import { useRouter } from "next/router";
 export default function post({ post }) {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const router = useRouter();
+  if (router.isFallback) {
+    return <h1>Loading......</h1>;
+  }
   return (
     <>
       <h1>List of posts</h1>
@@ -24,7 +30,7 @@ export async function getStaticPaths() {
   });
   return {
     paths,
-    fallback: false,
+    fallback: true,
   };
 }
 export async function getStaticProps(context) {
@@ -32,6 +38,12 @@ export async function getStaticProps(context) {
     `https://jsonplaceholder.typicode.com/posts/${context.params.postid}`
   );
   const data = await response.json();
+  if (!data.id) {
+    return {
+      notFound: true,
+    };
+  }
+
   return {
     props: {
       post: data,
